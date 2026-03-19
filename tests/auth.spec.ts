@@ -5,18 +5,11 @@ let loginDto: Login
 const baseUrl = 'https://backend.tallinn-learning.ee'
 const loginEndpoint = '/login/student'
 const ordersEndpoint = '/orders'
-const incorrectLogin = new Login(
-  'Kwa',
-  'terriblepassword'
-)
-
+const incorrectLogin = new Login('Kwa', 'terriblepassword')
 
 test.describe.serial('Authorization flow', () => {
   test.beforeAll(() => {
-    loginDto = new Login(
-      process.env['DL_USERNAME']!,
-      process.env['DL_PASSWORD']!,
-    )
+    loginDto = new Login(process.env['DL_USERNAME']!, process.env['DL_PASSWORD']!)
   })
 
   test('should login and receive authorization token', async ({ request }) => {
@@ -74,5 +67,4 @@ test.describe.serial('Authorization flow', () => {
     console.log('Received token:', token)
     expect(token).toBeFalsy()
   })
-
 })
