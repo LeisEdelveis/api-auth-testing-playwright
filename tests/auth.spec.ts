@@ -5,6 +5,11 @@ let loginDto: Login
 const baseUrl = 'https://backend.tallinn-learning.ee'
 const loginEndpoint = '/login/student'
 const ordersEndpoint = '/orders'
+const incorrectLogin = new Login(
+  'Kwa',
+  'terriblepassword'
+)
+
 
 test.describe.serial('Authorization flow', () => {
   test.beforeAll(() => {
@@ -54,4 +59,20 @@ test.describe.serial('Authorization flow', () => {
     console.log('Orders:', JSON.stringify(orders, null, 2))
     expect(orders).toBeTruthy()
   })
+
+  test('should not recieve a token', async ({ request }) => {
+    const response = await request.post(baseUrl + loginEndpoint, {
+      headers: {
+        'Content-Type': 'application/json',
+        accept: 'application/json',
+      },
+      data: incorrectLogin,
+    })
+
+    expect(response.status()).toBe(401)
+    const token = await response.text()
+    console.log('Received token:', token)
+    expect(token).toBeFalsy()
+  })
+
 })
