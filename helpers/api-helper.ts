@@ -5,6 +5,9 @@ import { expect } from '@playwright/test'
 import {APIRequestContext} from '@playwright/test'
 import { OrderSchema } from '../contracts/order-contrct'
 
+let loginDto : Login
+
+
 
 export async function fetchJwt(request: APIRequestContext, login: Login): Promise<string> {
   const authResponse = await request.post(baseUrl + loginEndpoint, {
