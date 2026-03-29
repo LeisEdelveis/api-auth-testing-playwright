@@ -34,7 +34,9 @@ export async function createOrder(request: APIRequestContext, jwt: string): Prom
 
   expect(response.status()).toBe(StatusCodes.OK)
 
-  const responseBody = OrderSchema.parse(response.body())
+  const responseBody = await response.json()
+  OrderSchema.parse(responseBody)
+return responseBody.id
 
-  return responseBody.id
+
 }
