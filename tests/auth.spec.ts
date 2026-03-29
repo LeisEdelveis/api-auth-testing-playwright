@@ -1,11 +1,14 @@
 import { expect, test } from '@playwright/test'
 import { Login } from '../dto/login-dto'
+import { fetchJwt} from '../helpers/api-helper'
+import{createOrder} from '../helpers/api-helper'
+
 
 let loginDto: Login
-const baseUrl = 'https://backend.tallinn-learning.ee'
-const loginEndpoint = '/login/student'
-const ordersEndpoint = '/orders'
-const incorrectLogin = new Login('Kwa', 'terriblepassword')
+export const baseUrl = 'https://backend.tallinn-learning.ee'
+export const loginEndpoint = '/login/student'
+export const ordersEndpoint = '/orders'
+export const incorrectLogin = new Login('Kwa', 'terriblepassword')
 
 test.describe.serial('Authorization flow', () => {
   test.beforeAll(() => {
@@ -13,45 +16,33 @@ test.describe.serial('Authorization flow', () => {
   })
 
   test('should login and receive authorization token', async ({ request }) => {
-    const response = await request.post(baseUrl + loginEndpoint, {
-      headers: {
-        'Content-Type': 'application/json',
-        accept: 'application/json',
-      },
-      data: loginDto,
-    })
-
-    expect(response.status()).toBe(200)
-    const token = await response.text()
-    console.log('Received token:', token)
-    expect(token).toBeTruthy()
+    const token = await fetchJwt(request, loginDto)
+    expect(token).toBeDefined()
   })
+
+  test('should create an order', async ({ request }) => {
+    const token = await fetchJwt(request, loginDto)
+    const orderId =  await createOrder(request, token)
+    expect(orderId).toBeDefined()
+  })
+
 
   test('should get orders with authorization token', async ({ request }) => {
-    const loginResponse = await request.post(baseUrl + loginEndpoint, {
-      headers: {
-        'Content-Type': 'application/json',
-        accept: 'application/json',
-      },
-      data: loginDto,
-    })
-
-    expect(loginResponse.status()).toBe(200)
-    const token = await loginResponse.text()
-    expect(token).toBeTruthy()
+    const token = await fetchJwt(request, loginDto)
 
     const response = await request.get(baseUrl + ordersEndpoint, {
-      headers: {
-        accept: '*/*',
-        Authorization: `Bearer ${token}`,
-      },
-    })
-
-    expect(response.status()).toBe(200)
-    const orders = await response.json()
-    console.log('Orders:', JSON.stringify(orders, null, 2))
-    expect(orders).toBeTruthy()
+    headers: {
+    accept: '*/*',
+    Authorization: `Bearer ${token}`,
+    }
   })
+  expect(response. status()). toBe(200)
+  const orders = await response.json()
+  console.log('Orders:', JSON. stringify(orders, null, 2))
+  expect(orders). toBeTruthy()
+})
+
+
 
   test('should not recieve a token', async ({ request }) => {
     const response = await request.post(baseUrl + loginEndpoint, {
