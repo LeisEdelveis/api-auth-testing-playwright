@@ -1,8 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { Login } from '../dto/login-dto'
-import { fetchJwt} from '../helpers/api-helper'
-import{createOrder} from '../helpers/api-helper'
-
+import { fetchJwt } from '../helpers/api-helper'
+import { createOrder } from '../helpers/api-helper'
 
 let loginDto: Login
 export const baseUrl = 'https://backend.tallinn-learning.ee'
@@ -22,27 +21,24 @@ test.describe.serial('Authorization flow', () => {
 
   test('should create an order', async ({ request }) => {
     const token = await fetchJwt(request, loginDto)
-    const orderId =  await createOrder(request, token)
+    const orderId = await createOrder(request, token)
     expect(orderId).toBeDefined()
   })
-
 
   test('should get orders with authorization token', async ({ request }) => {
     const token = await fetchJwt(request, loginDto)
 
     const response = await request.get(baseUrl + ordersEndpoint, {
-    headers: {
-    accept: '*/*',
-    Authorization: `Bearer ${token}`,
-    }
+      headers: {
+        accept: '*/*',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    expect(response.status()).toBe(200)
+    const orders = await response.json()
+    console.log('Orders:', JSON.stringify(orders, null, 2))
+    expect(orders).toBeTruthy()
   })
-  expect(response. status()). toBe(200)
-  const orders = await response.json()
-  console.log('Orders:', JSON. stringify(orders, null, 2))
-  expect(orders). toBeTruthy()
-})
-
-
 
   test('should not recieve a token', async ({ request }) => {
     const response = await request.post(baseUrl + loginEndpoint, {
