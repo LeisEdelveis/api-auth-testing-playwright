@@ -1,17 +1,15 @@
 import { Login } from '../dto/login-dto'
 import { baseUrl, loginEndpoint, ordersEndpoint } from '../tests/auth.spec'
-import {StatusCodes} from 'http-status-codes'
+import { StatusCodes } from 'http-status-codes'
 import { expect } from '@playwright/test'
-import {APIRequestContext} from '@playwright/test'
+import { APIRequestContext } from '@playwright/test'
 import { OrderSchema } from '../contracts/order-contrct'
 
-let loginDto : Login
-
-
+let loginDto: Login
 
 export async function fetchJwt(request: APIRequestContext, login: Login): Promise<string> {
   const authResponse = await request.post(baseUrl + loginEndpoint, {
-    data:login,
+    data: login,
   })
   if (authResponse.status() !== StatusCodes.OK) {
     throw new Error(`Authorization failed. Status: ${authResponse.status()}`)
@@ -19,25 +17,24 @@ export async function fetchJwt(request: APIRequestContext, login: Login): Promis
   return await authResponse.text()
 }
 
-export async function createOrder(request: APIRequestContext, jwt:string) : Promise<number> {
-  const response= await request.post(baseUrl + ordersEndpoint, {
-    data:{
-      "status": "OPEN",
-      "courierId": 0,
-      "customerName": "Miracle",
-      "customerPhone": "58064387",
-      "comment": "Can I have a burger plese, sir ?",
-      "id": 0
+export async function createOrder(request: APIRequestContext, jwt: string): Promise<number> {
+  const response = await request.post(baseUrl + ordersEndpoint, {
+    data: {
+      status: 'OPEN',
+      courierId: 0,
+      customerName: 'Miracle',
+      customerPhone: '58064387',
+      comment: 'Can I have?',
+      id: 0,
     },
     headers: {
       Authorization: `Bearer ${jwt}`,
-        },
-    })
-    expect(response.status()).toBe(StatusCodes.OK)
- const responseBody = await response.json()
-  OrderSchema.parse(responseBody)
- return responseBody.id
+    },
+  })
+
+  expect(response.status()).toBe(StatusCodes.OK)
+
+  const responseBody = OrderSchema.parse(response.body())
+
+  return responseBody.id
 }
-
-
-
